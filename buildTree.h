@@ -15,7 +15,7 @@ void growtree( Node *node);
 void destroytree( Node *node );
 void removeChildren( Node *node);
 double value( double x, double y, double time );
-int setflag(Node *node);
+void setflag(Node *node);
 int add(Node *node);
 int cut(Node *node);
 void printflag(Node *node);

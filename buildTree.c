@@ -118,25 +118,25 @@ double value( double x, double y, double time )
   	return( 2.0*exp(-8.0*(x-time)*(x-time)) - 1.0 ) ;
 }
 
-int setflag( Node *node ) 
+void setflag( Node *node ) 
 {
-  	int flag;
-  	if (nodeValue(node, 0.0)>0.5) flag = 1;
-  	else if (nodeValue(node, 0.0)<-0.5) flag = -1;
-  	else flag = 0;
-  	return flag;
+  	int i;
+  	if (node->child[0] == NULL && nodeValue(node, 0.0)>0.5) node->flag = 1;
+  	else if (node->child[0] == NULL && nodeValue(node, 0.0)<-0.5) node->flag = -1;
+  	else node->flag = 0;
 }
 
 int add( Node *node )
 {
 	int i;
+	setflag(node);
 	if (node->level < 6)
 	{
 		for (i=0; i<4; ++i)
 		{
 			if (node->child[i] != NULL) add(node->child[i]);
 		}
-		if(node->child[0] == NULL && setflag(node) == 1) 
+		if(node->child[0] == NULL && node->flag == 1) 
 		{
 			makeChildren(node);
 			increase += 4;
@@ -148,11 +148,12 @@ int add( Node *node )
 int cut(Node *node)
 {
 	int i;
+	setflag(node);
 	if (node->child[0] != NULL)
 	{
 		for (i=0; i<4; ++i) cut(node->child[i]);			
-		if ( setflag(node->child[0]) == -1 && setflag(node->child[0]) == -1 
-			&& setflag(node->child[0]) == -1 && setflag(node->child[0]) == -1)
+		if ( node->child[0]->flag == -1 && node->child[1]->flag == -1 
+			&& node->child[2]->flag == -1 && node->child[3]->flag == -1)
 		{
 			 removeChildren(node);
 			 decrease += 4;
@@ -163,7 +164,11 @@ int cut(Node *node)
 
 
 void adapt(Node *node)
-{
-	while(add(node) > maxinc) maxinc += 4;
-	while(cut(node) > maxdec) maxdec += 4;
+{ 	do
+	{
+	increase = 0;
+	decrease = 0;
+	printf("\n+%i nodes",add(node));
+	printf("\n-%i nodes\n",cut(node));
+	}while(increase != 0 || decrease != 0 )	; 
 }
